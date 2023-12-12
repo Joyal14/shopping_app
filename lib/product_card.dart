@@ -38,8 +38,8 @@ class ProductCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
                 '\$$price',
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.normal),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ),
             const SizedBox(

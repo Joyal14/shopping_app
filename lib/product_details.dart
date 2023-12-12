@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 
-class ProductDetails extends StatelessWidget {
+class ProductDetails extends StatefulWidget {
   final Map<String, Object> product;
   const ProductDetails({
     super.key,
     required this.product,
   });
+
+  @override
+  State<ProductDetails> createState() => _ProductDetailsState();
+}
+
+class _ProductDetailsState extends State<ProductDetails> {
+  int selectedSize = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +24,13 @@ class ProductDetails extends StatelessWidget {
       body: Column(
         children: [
           Text(
-            product['title'] as String,
+            widget.product['title'] as String,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const Spacer(),
           Padding(
             padding: const EdgeInsets.all(18.0),
-            child: Image.asset(product['imageUrl'] as String),
+            child: Image.asset(widget.product['imageUrl'] as String),
           ),
           const Spacer(
             flex: 3,
@@ -35,9 +42,10 @@ class ProductDetails extends StatelessWidget {
               borderRadius: BorderRadius.circular(40),
             ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '\$${product['price']}',
+                  '\$${widget.product['price']}',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(
@@ -47,30 +55,43 @@ class ProductDetails extends StatelessWidget {
                   height: 50,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: (product['sizes'] as List<int>).length,
+                    itemCount: (widget.product['sizes'] as List<int>).length,
                     itemBuilder: (context, index) {
-                      final size = (product['sizes'] as List<int>)[index];
+                      final size =
+                          (widget.product['sizes'] as List<int>)[index];
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Chip(
-                          label: Text(
-                            size.toString(),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedSize = size;
+                            });
+                          },
+                          child: Chip(
+                            label: Text(
+                              size.toString(),
+                            ),
+                            backgroundColor: selectedSize == size
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
                           ),
                         ),
                       );
                     },
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: () {},
-                  child: const Text(
-                    'Add to Cart',
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        minimumSize: const Size(double.infinity, 50)),
+                    onPressed: () {},
+                    child: const Text(
+                      'Add to Cart',
+                      style: TextStyle(
+                          color: Color.fromRGBO(0, 0, 0, 1), fontSize: 18),
+                    ),
                   ),
                 ),
               ],

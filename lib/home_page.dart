@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_app/gobal_variable.dart';
 import 'package:shopping_app/product_card.dart';
+import 'package:shopping_app/product_details.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,13 +11,72 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<String> filters = const ['All', 'Nike', 'Puma', 'Addidas', 'Bata'];
+  late List<String> filters;
   late String selectedFilter;
+  List<Map<String, dynamic>> filteredProducts = [];
+  late List<Map<String, dynamic>> originalProducts;
 
   @override
   void initState() {
     super.initState();
+    List<String> uniqueCompanies = products
+        .map((product) => product['company'] as String)
+        .toSet()
+        .toList();
+    filters = ['All', ...uniqueCompanies];
     selectedFilter = filters[0];
+    filteredProducts = List.from(products);
+    originalProducts = List.from(products);
+  }
+  // This logic for the filter listView
+  // void filterProducts(String query) {
+  //   setState(() {
+  //     filteredProducts = originalProducts.where((product) {
+  //       final companyMatches = selectedFilter == 'All' ||
+  //           product['company'].toLowerCase() == selectedFilter.toLowerCase();
+  //       final titleMatches = (product['title'] as String)
+  //           .toLowerCase()
+  //           .contains(query.toLowerCase());
+  //       return companyMatches && titleMatches;
+  //     }).toList();
+  //   });
+  // }
+
+  void filterProducts(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        // No search query, apply only the selected filter
+        if (selectedFilter == 'All') {
+          filteredProducts = List.from(originalProducts);
+        } else {
+          filteredProducts = originalProducts
+              .where((product) => product['company'] == selectedFilter)
+              .toList();
+        }
+      } else {
+        // Apply both filter and search query
+        filteredProducts = originalProducts
+            .where((product) =>
+                (product['title'] as String)
+                    .toLowerCase()
+                    .contains(query.toLowerCase()) &&
+                (selectedFilter == 'All' ||
+                    product['company'].toLowerCase() ==
+                        selectedFilter.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  List<Map<String, Object>> convertDynamicList(
+      List<Map<String, dynamic>> dynamicList) {
+    return dynamicList.map((dynamicMap) {
+      Map<String, Object> objectMap = {};
+      dynamicMap.forEach((key, value) {
+        objectMap[key] = value;
+      });
+      return objectMap;
+    }).toList();
   }
 
   @override
@@ -29,6 +89,10 @@ class _HomePageState extends State<HomePage> {
         left: Radius.circular(50),
       ),
     );
+
+    List<Map<String, Object>> filteredObjectProducts =
+        convertDynamicList(filteredProducts);
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -42,13 +106,16 @@ class _HomePageState extends State<HomePage> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
-                const Expanded(
+                Expanded(
                   child: TextField(
-                    style: TextStyle(
+                    onChanged: (String query) {
+                      filterProducts(query);
+                    },
+                    style: const TextStyle(
                       fontWeight: FontWeight.normal,
                       fontSize: 20,
                     ),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Search",
                       prefixIcon: Icon(Icons.search),
                       border: border,
@@ -72,6 +139,7 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         setState(() {
                           selectedFilter = filter;
+                          filterProducts('');
                         });
                       },
                       child: Chip(
@@ -97,16 +165,25 @@ class _HomePageState extends State<HomePage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: products.length,
+                itemCount: filteredObjectProducts.length,
                 itemBuilder: (context, index) {
-                  final product = products[index];
-                  return ProductCard(
-                    title: product['title'] as String,
-                    price: product['price'] as double,
-                    images: product['imageUrl'] as String,
-                    backgroundcolor: index.isEven
-                        ? const Color.fromRGBO(188, 237, 241, 1)
-                        : const Color.fromARGB(255, 221, 224, 224),
+                  final product = filteredObjectProducts[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) {
+                          return ProductDetails(product: product);
+                        }),
+                      );
+                    },
+                    child: ProductCard(
+                      title: product['title'] as String,
+                      price: product['price'] as double,
+                      images: product['imageUrl'] as String,
+                      backgroundcolor: index.isEven
+                          ? const Color.fromRGBO(188, 237, 241, 1)
+                          : const Color.fromARGB(255, 221, 224, 224),
+                    ),
                   );
                 },
               ),
