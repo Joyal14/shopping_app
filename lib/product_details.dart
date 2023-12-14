@@ -30,7 +30,10 @@ class _ProductDetailsState extends State<ProductDetails> {
           const Spacer(),
           Padding(
             padding: const EdgeInsets.all(18.0),
-            child: Image.asset(widget.product['imageUrl'] as String),
+            child: Image.asset(
+              widget.product['imageUrl'] as String,
+              fit: BoxFit.fill,
+            ),
           ),
           const Spacer(
             flex: 3,
@@ -82,15 +85,34 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: ElevatedButton(
+                  // child: ElevatedButton(
+                  //   style: ElevatedButton.styleFrom(
+                  //       backgroundColor: Theme.of(context).colorScheme.primary,
+                  //       minimumSize: const Size(double.infinity, 50)),
+                  //   onPressed: () {},
+                  //   child: const Text(
+                  //     'Add to Cart',
+                  //     style: TextStyle(
+                  //         color: Color.fromRGBO(0, 0, 0, 1), fontSize: 18),
+                  //   ),
+                  // ),
+                  child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        minimumSize: const Size(double.infinity, 50)),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
                     onPressed: () {},
-                    child: const Text(
-                      'Add to Cart',
-                      style: TextStyle(
-                          color: Color.fromRGBO(0, 0, 0, 1), fontSize: 18),
+                    icon: const Icon(
+                      Icons.shopping_cart,
+                      color: Colors.black,
+                    ),
+                    label: Title(
+                      color: Colors.black,
+                      child: const Text(
+                        'Add to Cart',
+                        style: TextStyle(
+                            color: Color.fromRGBO(0, 0, 0, 1), fontSize: 18),
+                      ),
                     ),
                   ),
                 ),
